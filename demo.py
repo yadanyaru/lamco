@@ -1,4 +1,4 @@
-"""Small synthetic smoke demo; no model download or GPU is required."""
+
 
 from __future__ import annotations
 
