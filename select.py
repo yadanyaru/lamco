@@ -1,4 +1,4 @@
-"""Command-line entry point for LaMCo selection from a compact NPZ file."""
+
 
 from __future__ import annotations
 
