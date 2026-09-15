@@ -1,10 +1,4 @@
-"""Minimal, deterministic reproduction of LaMCo coreset selection.
 
-This module intentionally contains selection only. A frozen vision-language
-model should be used upstream to produce image embeddings and class text
-prototypes; downstream classifiers are trained separately on the returned
-indices and the original labels.
-"""
 
 from __future__ import annotations
 
@@ -19,7 +13,7 @@ Array = np.ndarray
 
 @dataclass(frozen=True)
 class ClassSelection:
-    """Ordered selections for one class, before and after merge/refill."""
+
 
     budget: int
     core: Array
@@ -29,7 +23,7 @@ class ClassSelection:
 
 @dataclass(frozen=True)
 class LaMCoResult:
-    """Selected global indices and diagnostics used to audit the selection."""
+
 
     indices: Array
     margins: Array
@@ -63,11 +57,6 @@ def semantic_margin_scores(
     temperature: float = 1.0,
     alpha: float = 1.0,
 ) -> tuple[Array, Array, Array]:
-    """Compute Eq. (1)-(2): label-aware margins, LCMS, and agreement gate.
-
-    Both inputs are normalized internally. ``temperature`` is tau in the
-    paper. If an encoder exposes a CLIP logit scale ``s``, use tau = 1 / s.
-    """
 
     images = normalize_rows(image_embeddings)
     prototypes = normalize_rows(class_prototypes)
@@ -103,7 +92,6 @@ def semantic_margin_scores(
 
 
 def _k_center(features: Array, global_indices: Array, budget: int) -> Array:
-    """Deterministic cosine k-center with the medoid-like centroid seed."""
 
     if budget <= 0 or global_indices.size == 0:
         return np.empty(0, dtype=np.int64)
@@ -135,7 +123,6 @@ def _weighted_facility_location(
     candidate_mask: Array,
     budget: int,
 ) -> Array:
-    """Exact greedy maximization of Eq. (3), with deterministic tie-breaking."""
 
     if budget <= 0 or global_indices.size == 0:
         return np.empty(0, dtype=np.int64)
@@ -180,13 +167,6 @@ def lamco_select(
     gamma: float = 1.0,
     temperature: float = 1.0,
 ) -> LaMCoResult:
-    """Run class-balanced LaMCo and return original dataset indices.
-
-    Exactly one of ``budget`` or ``keep_fraction`` must be supplied. Class
-    budget remainders go to ascending class IDs. Boundary candidates are
-    label-consistent samples; refill may use any remaining class member when
-    necessary to preserve the exact class budget.
-    """
 
     images = normalize_rows(image_embeddings)
     prototypes = normalize_rows(class_prototypes)
